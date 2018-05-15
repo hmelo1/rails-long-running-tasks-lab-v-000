@@ -4,6 +4,13 @@ class SongsController < ApplicationController
     @songs = Song.all
   end
 
+  def upload
+    CSV.foreach(params["file"].path, headers: true) do |song|
+      Song.create(title: song[0], artist_name: song[1])
+    end
+    redirect_to songs_path
+  end
+
   def show
     @song = Song.find(params[:id])
   end
@@ -42,14 +49,6 @@ class SongsController < ApplicationController
     @song = Song.find(params[:id])
     @song.destroy
     flash[:notice] = "Song deleted."
-    redirect_to songs_path
-  end
-
-  def upload
-    CSV.foreach(params["files"].path, headers: true) do |file|
-      a = Artist.find_or_create_by(name: file[1])
-      Song.find_or_create_by(title: file[0], artist: a)
-    end
     redirect_to songs_path
   end
 
